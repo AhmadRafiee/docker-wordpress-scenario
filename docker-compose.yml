@@ -1,0 +1,27 @@
+---
+version: '2'
+services:
+   db:
+     image: mysql:5.7
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: salamdonya
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: salamdonya
+     volumes:
+       - db:/var/lib/mysql
+
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:latest
+     ports:
+       - 80:80
+     restart: always
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_PASSWORD: salamdonya
+
+volumes:
+  db:
