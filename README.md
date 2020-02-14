@@ -1,20 +1,23 @@
+# Wordpress with docker 
+
+Create wordpress site and mysql database with nginx
 
 
-### pull all needed images 
+**Stap1:** pull all needed images 
 ```bash
 docker pull wordpress:latest
 docker pull nginx:latest
 docker pull mysql:5.7
 ```
 
-### create network and check it 
+**Stap2:** create network and check it 
 ```bash
 docker network create --driver bridge --subnet=172.30.10.0/24 wp-net
 docker network ls
 docker inspect wp-net
 ```
 
-### create volume and check it 
+**Stap3:** create volume and check it 
 ```bash
 docker volume create --driver local --name wp-data
 docker volume create --driver local --name db-data
@@ -23,14 +26,14 @@ docker inspect wp-data
 docker inspect db-data
 ```
 
-### create nginx directory
+**Stap4:** create nginx directory
 ```bash 
 mkdir -p /home/ahmad/DockerMe/wp/nginx/conf.d
 mkdir -p /home/ahmad/DockerMe/wp/nginx/cert
 tree /home/ahmad/DockerMe/wp
 ```
 
-### run mysql service and check it
+**Stap5:** run mysql service and check it
 ```bash
 docker run -itd --name mysql --hostname mysql \
 --network=wp-net --network-alias=db --ip=172.30.10.10 \
@@ -43,14 +46,14 @@ docker run -itd --name mysql --hostname mysql \
 mysql:5.7
 ```
 
-### check mysql services
+**Stap6:** check mysql services
 ```bash
 docker ps
 docker stats mysql
 docker exec -i mysql mysql -u root -pEUEBmxTYtgrXdsdsnfHJJwE9V9fKK7Anha  <<< "show databases"
 ```
 
-### run wordpress service and check it
+**Stap7:** run wordpress service and check it
 ```bash
 docker run -itd --name wordpress --hostname wordpress \
 --network=wp-net --network-alias=wp --ip=172.30.10.20 \
@@ -62,7 +65,7 @@ docker run -itd --name wordpress --hostname wordpress \
 wordpress:latest
 ```
 
-### check wordpress services
+**Stap8:** check wordpress services
 ```bash
 docker ps
 docker stats --no-stream
@@ -70,7 +73,7 @@ docker logs -f wordpress
 curl -I -L 172.30.10.20
 ```
 
-### create nginx config file for wordpress proxy pass
+**Stap9:** create nginx config file for wordpress proxy pass
 ```bash
 vim /home/ahmad/DockerMe/wp/nginx/conf.d/wordpress.conf
 server {
@@ -87,7 +90,7 @@ server {
  }
 ```
 
-### run nginx services and check it
+**Stap10:** run nginx services and check it
 ```bash
 docker run -itd --name nginx --hostname nginx \
 --network=wp-net --network-alias=web --ip=172.30.10.30 \
@@ -99,30 +102,32 @@ docker run -itd --name nginx --hostname nginx \
 nginx:latest
 ```
 
-### check nginx services
+**Stap11:** check nginx services
 ```bash
 docker ps
 docker stats --no-stream
 curl -I -L http://test.dockerme.ir
 ```
 
-### backup databases
+**Stap12:** backup databases
 ```bash
 docker exec -i mysql mysqldump -u root -pEUEBmxTYtgrXdsdsnfHJJwE9V9fKK7Anha --all-databases --single-transaction --quick  > full-backup-$(date +%F).sql
 ```
 
 
-## Run db and wordpress short way
-**Run Mysql Database Container**
+## Short way
+### Run mysql and wordpress without nginx. 
+**Step1:** run mysql container
 ```bash
 docker run -it -d --name db -e MYSQL_ROOT_PASSWORD=salamdonya -e MYSQL_DATABASE=wordpress -e MYSQL_USER=wordpress -e MYSQL_PASSWORD=salamdonya mysql:5.7
 ```
-**Run Wordpress Container**
+**Step2:** run wordpress container
 ```bash
 docker run -it -d -p 80:80 --link db:db --name wordpress -e WORDPRESS_DB_HOST=db:3306 -e WORDPRESS_DB_PASSWORD=salamdonya wordpress:latest
 ```
 
-## create compose file
+# Run wordpress with docker-compose command.
+**step1:** create compose file
 ```bash
 vim docker-compose.yml
 version: '3'
@@ -160,3 +165,13 @@ services:
     links:
       - 'wordpress:wp'
 ```
+**Step2:** run compose file with docker-compose commands
+```bash
+docker-compose config 
+docker-compose up -d 
+docker-compose ps
+docker-compose logs -f --tail 10
+```
+
+## License
+[DockerMe.ir](https://dockerme.ir)
