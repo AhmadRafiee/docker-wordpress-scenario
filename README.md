@@ -165,10 +165,17 @@ services:
     links:
       - 'wordpress:wp'
 ```
-**Step2:** run compose file with docker-compose commands
+**Step2:** check compose file syntax
 ```bash
 docker-compose config 
+```
+
+**Step3:** run compose file with docker-compose commands
+```bash
 docker-compose up -d 
+```
+**Step4:** check running services and services logs 
+```bash
 docker-compose ps
 docker-compose logs -f --tail 10
 ```
